@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment History | DBVIRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --tenant-blue: #0d6efd;
+            --tenant-dark: #084298;
+        }
+
+        body {
+            background-color: #f0f7ff;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--tenant-dark);
+            color: white;
+            position: fixed;
+            width: 260px;
+            z-index: 1000;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Table & Card Styling */
+        .card {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .table thead {
+            background-color: #f8f9fa;
+        }
+
+        .bg-success-subtle {
+            background-color: #d1e7dd !important;
+            color: #0f5132 !important;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar d-flex flex-column p-4 shadow">
+    <h3 class="fw-bold mb-4 text-center border-bottom pb-3">DBVIRM</h3>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="{% url 'tenant_dashboard' %}" class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'payment_history' %}" class="nav-link active">
+                <i class="bi bi-receipt me-2"></i> Payment History
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link">
+                <i class="bi bi-tools me-2"></i> Maintenance
+            </a>
+        </li>
+        <hr>
+        <li>
+            <a href="{% url 'index' %}" class="nav-link text-info fw-bold">
+                <i class="bi bi-house-door me-2"></i> Back to Home
+            </a>
+        </li>
+    </ul>
+    <div class="mt-auto">
+        <p class="small mb-1 opacity-75">Logged in as:</p>
+        <p class="fw-bold mb-3">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm w-100">Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-receipt me-2 text-primary"></i>Full Payment History</h2>
+            <p class="text-muted">A complete record of your rent transactions.</p>
+        </div>
+        <a href="{% url 'tenant_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr class="text-uppercase small fw-bold text-muted">
+                        <th class="ps-4 py-3">Date & Time</th>
+                        <th class="py-3">M-Pesa Receipt</th>
+                        <th class="py-3">Amount Paid</th>
+                        <th class="py-3">Reference</th>
+                        <th class="py-3 text-center">Status</th>
+                        <th class="py-3 pe-4">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for payment in payments %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="d-block fw-bold text-dark">{{ payment.date_paid|date:"d M, Y" }}</span>
+                                <span class="text-muted small">{{ payment.date_paid|date:"H:i A" }}</span>
+                            </td>
+                            <td><code class="fw-bold text-primary">{{ payment.transaction_id }}</code></td>
+                            <td class="fw-bold text-dark">KES {{ payment.amount }}</td>
+                            <td class="text-muted">Rent - {{ payment.lease.unit.unit_name }}</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-success-subtle px-3 py-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Successful
+                                </span>
+                            </td>
+                            <td class="pe-4">
+                                <a href="{% url 'view_receipt' payment.id %}" class="btn btn-sm btn-light border"
+                                   title="View/Download Receipt">
+                                    <i class="bi bi-eye me-1"></i> View Receipt
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-info-circle display-4 d-block mb-3"></i>
+                                <h5>No payments recorded yet</h5>
+                                <p>Once you make a payment via M-Pesa, it will appear here.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

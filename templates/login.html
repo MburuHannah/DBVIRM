@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | DBVIRM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f8ff; min-height: 100vh; display: flex; align-items: center; }
+        .gradient-custom { background: linear-gradient(90deg, #0066cc, #00cc99); }
+        .card { border-radius: 15px; border: none; }
+        .btn-login { background: linear-gradient(90deg, #0066cc, #00cc99); border: none; color: white; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">DBVIRM</h2>
+                    <p class="text-muted">Welcome back! Please login.</p>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-login w-100 py-2">Login</button>
+                </form>
+                <div class="text-center mt-3 small">
+                    <a href="{% url 'signup' %}">Register as a Landlord</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

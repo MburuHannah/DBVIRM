@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Units List | DBVIRM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark" style="background-color:#0d6efd;">
+    <div class="container">
+        <span class="navbar-brand fw-bold">DBVIRM – Units</span>
+        <div>
+            <a href="{% url 'unit_add' %}" class="btn btn-success btn-sm">Add Unit</a>
+
+
+            <a href="#" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header text-white" style="background-color:#20c997;">
+            <h5 class="mb-0">All Rental Units</h5>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+
+                        <th>Unit Name</th>
+                        <th>House Type</th>
+                        <th>Status</th>
+                        <th>Rent (KES)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>A1</td>
+                        <td>1 Bedroom</td>
+                        <td><span class="badge bg-success">Occupied</span></td>
+                        <td>15,000</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">View</button>
+                            <button class="btn btn-sm btn-warning">Edit</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>B2</td>
+                        <td>2 Bedroom</td>
+                        <td><span class="badge bg-secondary">Vacant</span></td>
+                        <td>25,000</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">View</button>
+                            <button class="btn btn-sm btn-warning">Edit</button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

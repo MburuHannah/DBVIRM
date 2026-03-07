@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tenant Dashboard | DBVIRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root { --tenant-blue: #0d6efd; --tenant-dark: #084298; }
+        body { background-color: #f0f7ff; }
+        .sidebar { height: 100vh; background-color: var(--tenant-dark); color: white; position: fixed; width: 260px; z-index: 1000; }
+        .main-content { margin-left: 260px; padding: 40px; min-height: 100vh; }
+        .nav-link { color: rgba(255,255,255,0.8); margin-bottom: 10px; border-radius: 8px; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
+        .card-stat { border-top: 4px solid var(--tenant-blue); border-radius: 15px; }
+        .btn-pay { background-color: var(--tenant-blue); color: white; font-weight: bold; border-radius: 10px; transition: 0.3s; }
+        .btn-pay:hover { background-color: var(--tenant-dark); color: white; transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar d-flex flex-column p-4 shadow">
+    <h3 class="fw-bold mb-4 text-center border-bottom pb-3">DBVIRM</h3>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="{% url 'tenant_dashboard' %}" class="nav-link active">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'payment_history' %}" class="nav-link">
+                <i class="bi bi-receipt me-2"></i> Payment History
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'maintenance_page' %}" class="nav-link">
+                <i class="bi bi-tools me-2"></i> Maintenance
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'index' %}" class="nav-link text-info fw-bold">
+                <i class="bi bi-house-door me-2"></i> Back to Home
+            </a>
+        </li>
+    </ul>
+    <div class="mt-auto">
+        <p class="small mb-1 opacity-75">Logged in as:</p>
+        <p class="fw-bold mb-3">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm w-100">Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-dark">Hello, {{ request.user.first_name }}!</h2>
+            <p class="text-muted">Welcome to your digital home portal.</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-primary px-3 py-2 rounded-pill">Status: Active</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 15px;">
+                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-geo-alt me-2"></i>Residence Details</h5>
+                {% if lease %}
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <p class="text-muted mb-1">Unit Number</p>
+                        <h2 class="fw-bold">{{ lease.unit.unit_name }}</h2>
+                    </div>
+                    <div class="col-6">
+                        <p class="text-muted mb-1">Unit Type</p>
+                        <h2 class="fw-bold text-secondary">{{ lease.unit.get_house_type_display }}</h2>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning border-0">
+                    Your unit assignment is being processed. Please contact your landlord.
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+                <h5 class="fw-bold mb-3">Recent Payments</h5>
+                {% if payments %}
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>Date</th>
+                                <th>Receipt</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments|slice:":5" %}
+                            <tr>
+                                <td>{{ payment.date_paid|date:"d M, Y" }}</td>
+                                <td><code class="text-primary">{{ payment.transaction_id }}</code></td>
+                                <td class="fw-bold">KES {{ payment.amount }}</td>
+                                <td><span class="badge bg-success-soft text-success">Confirmed</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted small">No recent transactions found.</p>
+                {% endif %}
+            </div>
+        </div> <div class="col-md-4">
+            <div class="card border-0 shadow card-stat p-4 text-center">
+                <h6 class="text-uppercase text-muted fw-bold mb-3">Total Due</h6>
+                <h1 class="display-5 fw-bold text-dark mb-4">KES {{ lease.unit.rent|default:"0" }}</h1>
+                <p class="small text-muted mb-4">Click below to pay via M-Pesa STK Push safely.</p>
+                <a href="{% url 'process_payment' %}" class="btn btn-pay w-100 py-3 shadow-sm">
+                    <i class="bi bi-phone me-2"></i> PAY RENT NOW
+                </a>
+                <div class="mt-4 pt-3 border-top">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/512px-M-PESA_LOGO-01.svg.png"
+                         alt="M-Pesa" style="height: 30px; filter: grayscale(100%); opacity: 0.5;">
+                </div>
+            </div>
+        </div>
+
+    </div> </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
