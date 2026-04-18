@@ -26,5 +26,14 @@ urlpatterns = [
     path('maintenance/', views.maintenance_page, name='maintenance_page'),
 
     path('maintenance/update/<int:pk>/', views.update_maintenance_status, name='update_maintenance_status'),
+    path('unit/edit/<int:unit_id>/', views.edit_unit, name='edit_unit'),
+    path('tenant/edit/<int:tenant_id>/', views.edit_tenant, name='edit_tenant'),
+    path('reminder/<int:tenant_id>/', views.send_rent_reminder, name='send_rent_reminder'),
 
+    path('end_lease/<int:lease_id>/', views.end_lease, name='end_lease'),
+
+    path('tenant/<int:tenant_id>/', views.tenant_detail, name='tenant_detail'),
+path('manage-units/', views.manage_units, name='manage_units'),
+path('landlord/maintenance/', views.maintenance_list, name='maintenance_list'),
+path('global-payments/', views.global_payments, name='global_payments'),
 ]

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .utils import initiate_stk_push
-from accounts.models import Lease,Payment
+from dbApp.utils import initiate_stk_push
+from accounts.models import Lease,Payment,User
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 
 
 
@@ -35,40 +36,114 @@ def process_payment(request):
         messages.error(request, f"Error: {error_msg}")
 
     return redirect('tenant_dashboard')
-@csrf_exempt  # Safaricom doesn't have your CSRF token, so we exempt this view
+
+
+@csrf_exempt
 def mpesa_callback(request):
     if request.method == 'POST':
-        # 1. Capture the data Safaricom sent
-        stk_data = json.loads(request.body)
-        result_code = stk_data['Body']['stkCallback']['ResultCode']
+        try:
+            print("=" * 70)
+            print("🔔 CALLBACK RECEIVED AT:", datetime.now())
 
-        # 2. ResultCode 0 means SUCCESS
-        if result_code == 0:
-            callback_metadata = stk_data['Body']['stkCallback']['CallbackMetadata']['Item']
+            # Parse the request
+            body = request.body.decode('utf-8')
+            stk_data = json.loads(body)
 
-            # Extract specific details (Amount, Receipt Number, etc.)
-            amount = next(item['Value'] for item in callback_metadata if item['Name'] == 'Amount')
-            mpesa_receipt = next(item['Value'] for item in callback_metadata if item['Name'] == 'MpesaReceiptNumber')
-            phone = next(item['Value'] for item in callback_metadata if item['Name'] == 'PhoneNumber')
+            # Extract callback data
+            stk_callback = stk_data['Body']['stkCallback']
+            result_code = stk_callback['ResultCode']
 
-            # 3. Find the tenant and save the payment in your DB
+            print(f"Result Code: {result_code}")
 
-            try:
-                # 1. Find the active lease for this phone number
-                # Note: Ensure your tenant's phone is saved as '254...' in the DB
-                lease = Lease.objects.get(tenant__phone=str(phone), is_active=True)
+            if result_code == 0:
+                # Extract metadata
+                items = stk_callback['CallbackMetadata']['Item']
 
-                # 2. Create the payment record using the 'lease' field
-                Payment.objects.create(
-                    lease=lease,
-                    amount=amount,
-                    transaction_id=mpesa_receipt,
-                    is_confirmed=True  # Since M-Pesa sent a success result
-                )
-                print(f"Payment recorded for {lease.tenant.username}")
+                # Initialize variables
+                amount = None
+                receipt = None
+                phone = None
 
-            except Lease.DoesNotExist:
-                print(f"Payment received for {phone} but no active lease found!")
-        return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
+                # Loop through items safely
+                for item in items:
+                    if item['Name'] == 'Amount':
+                        amount = item.get('Value')
+                    elif item['Name'] == 'MpesaReceiptNumber':
+                        receipt = item.get('Value')
+                    elif item['Name'] == 'PhoneNumber':
+                        phone = item.get('Value')
 
-    return JsonResponse({"Error": "Invalid request"}, status=400)
+                print(f"✅ Extracted - Amount: {amount}, Receipt: {receipt}, Phone: {phone} (type: {type(phone)})")
+
+                if not receipt:
+                    print("❌ No receipt number found")
+                    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+                # Convert phone to string and format
+                if phone:
+                    # Convert to string first
+                    phone_str = str(phone)
+                    print(f"Phone as string: {phone_str}")
+
+                    if phone_str.startswith('254'):
+                        lookup_phone = '0' + phone_str[3:]
+                    else:
+                        lookup_phone = phone_str
+                else:
+                    lookup_phone = None
+
+                print(f"Looking up user with phone: {lookup_phone}")
+
+                # Import models
+                from accounts.models import User, Lease, Payment
+
+                # Find user
+                user = None
+                if lookup_phone:
+                    user = User.objects.filter(phone=lookup_phone).first()
+
+                if not user:
+                    print(f"❌ No user found with phone {lookup_phone}")
+                    # List all users for debugging
+                    print("Users in database:")
+                    for u in User.objects.all():
+                        print(f"  - {u.username}: '{u.phone}'")
+                    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+                print(f"✅ Found user: {user.username}")
+
+                # Find active lease
+                lease = Lease.objects.filter(tenant=user, is_active=True).first()
+                if not lease:
+                    print(f"❌ No active lease for {user.username}")
+                    return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+                print(f"✅ Found lease for unit: {lease.unit.unit_name}")
+
+                # Check if payment already exists
+                existing = Payment.objects.filter(transaction_id=receipt).first()
+                if existing:
+                    print(f"⚠️ Payment {receipt} already exists")
+                else:
+                    # Create payment
+                    payment = Payment.objects.create(
+                        lease=lease,
+                        amount=amount,
+                        transaction_id=receipt,
+                        is_confirmed=True
+                    )
+                    print(f"✅✅✅ PAYMENT SAVED! ID: {payment.id}")
+                    print(f"   Receipt: {payment.transaction_id}")
+                    print(f"   Amount: KES {payment.amount}")
+                    print(f"   Date: {payment.date_paid}")
+
+            print("=" * 70)
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+        except Exception as e:
+            print(f"❌ ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)

@@ -1,0 +1,77 @@
+{% extends 'base_landlord.html' %}
+
+{% block title %}Manage Units | DBVIRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-houses me-2 text-success"></i>Property Inventory</h2>
+        <a href="{% url 'add_unit' %}" class="btn btn-success shadow-sm">+ Add New Unit</a>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Unit Name</th>
+                        <th>Type</th>
+                        <th>Tenant Name</th>
+                        <th>Contact</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units %}
+                    <tr>
+                        <td><strong>{{ unit.unit_name }}</strong></td>
+                        <td>{{ unit.get_house_type_display }}</td>
+                        <td>
+                            {% if unit.lease %}
+                                <span class="fw-bold text-dark">{{ unit.lease.tenant.get_full_name }}</span>
+                            {% else %}
+                                <span class="badge bg-light text-muted">Vacant</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if unit.lease %}
+                                <small><i class="bi bi-telephone text-muted me-1"></i>{{ unit.lease.tenant.phone }}</small>
+                            {% else %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group shadow-sm">
+                                <a href="{% url 'edit_unit' unit.id %}" class="btn btn-sm btn-light border" title="Edit Unit">
+                                    <i class="bi bi-pencil text-primary"></i>
+                                </a>
+
+                                {% if unit.lease %}
+                                    <a href="{% url 'tenant_detail' unit.lease.tenant.id %}" class="btn btn-sm btn-light border" title="View Tenant">
+                                        <i class="bi bi-eye text-success"></i>
+                                    </a>
+
+                                    <a href="{% url 'edit_tenant' unit.lease.tenant.id %}" class="btn btn-sm btn-light border" title="Edit Tenant">
+                                        <i class="bi bi-person-gear text-info"></i>
+                                    </a>
+                                    <form action="{% url 'end_lease' unit.lease.id %}" method="POST" class="d-inline" onsubmit="return confirm('Confirm Move-out? This will make the unit vacant.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-light border" title="Move Out">
+                                            <i class="bi bi-door-open text-danger"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No units found. Click "+ Add New Unit" to begin.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

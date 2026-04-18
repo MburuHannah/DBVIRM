@@ -1,0 +1,56 @@
+{% extends 'base_landlord.html' %}
+
+{% block title %}Edit Tenant | DBVIRM{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'manage_units' %}">Units</a></li>
+                    <li class="breadcrumb-item active">Edit {{ tenant.first_name }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h4 class="fw-bold text-dark"><i class="bi bi-person-gear me-2 text-success"></i>Update Tenant Info</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="small fw-bold text-muted">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col">
+                                <label class="small fw-bold text-muted">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted">Email Address</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted">Phone Number (+254...)</label>
+                            {{ form.phone }}
+                            <small class="text-muted">Ensure this is correct for SMS reminders.</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+                            <a href="{% url 'manage_units' %}" class="btn btn-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

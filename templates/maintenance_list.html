@@ -1,0 +1,50 @@
+{% extends 'base_landlord.html' %}
+
+{% block title %}Maintenance | DBVIRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="fw-bold text-dark mb-4"><i class="bi bi-wrench-adjustable me-2 text-danger"></i>Active Maintenance</h2>
+
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Unit</th>
+                        <th>Issue Reported</th>
+                        <th>Tenant</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in maintenance_requests %}
+                    <tr>
+                        <td><strong>{{ req.unit.unit_name }}</strong></td>
+                        <td>
+                            <span class="fw-bold">{{ req.title }}</span><br>
+                            <small class="text-muted">{{ req.description }}</small>
+                        </td>
+                        <td>{{ req.tenant.get_full_name }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'update_maintenance_status' req.id %}" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm" style="width: 130px;">
+                                    <option value="Pending" {% if req.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="In Progress" {% if req.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Completed" {% if req.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">No maintenance issues found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

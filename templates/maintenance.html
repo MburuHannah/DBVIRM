@@ -44,38 +44,39 @@
         </form>
     </div>
 
-    <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
-        <h5 class="fw-bold mb-3">Your Request History</h5>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="text-muted small text-uppercase">
-                    <tr>
-                        <th>Date</th>
-                        <th>Issue</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for req in requests %}
-                    <tr>
-                        <td>{{ req.created_at|date:"d M, Y" }}</td>
-                        <td><strong>{{ req.title }}</strong><br><small class="text-muted">{{ req.description }}</small></td>
-                        <td>
-                            {% if req.status == 'Pending' %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            {% elif req.status == 'In Progress' %}
-                                <span class="badge bg-info text-white">In Progress</span>
-                            {% else %}
-                                <span class="badge bg-success text-white">Completed</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="3" class="text-center text-muted">No requests found.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+    <h5 class="fw-bold mb-3">Your Request History</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="text-muted small text-uppercase">
+                <tr>
+                    <th style="width: 25%;">Date Reported</th>
+                    <th style="width: 75%;">Issue Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td class="text-secondary">
+                        <i class="bi bi-calendar3 me-2"></i>{{ req.created_at|date:"d M, Y" }}
+                    </td>
+
+                    <td>
+                        <div class="py-1">
+                            <strong class="text-dark fs-5">{{ req.title }}</strong>
+                            <p class="text-muted mb-0 mt-1">{{ req.description }}</p>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center py-5 text-muted">
+                        <i class="bi bi-info-circle me-2"></i>No maintenance requests found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 

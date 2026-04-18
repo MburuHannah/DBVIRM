@@ -1,0 +1,44 @@
+{% extends 'base_landlord.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'manage_units' %}">Units</a></li>
+        <li class="breadcrumb-item active">{{ tenant.get_full_name }}</li>
+      </ol>
+    </nav>
+
+    <div class="card shadow-sm p-4 border-0 mb-4" style="border-radius: 15px;">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem;">
+                    {{ tenant.first_name|slice:":1" }}{{ tenant.last_name|slice:":1" }}
+                </div>
+            </div>
+            <div class="col">
+                <h2 class="fw-bold mb-0">{{ tenant.get_full_name }}</h2>
+                <span class="badge bg-info">Active Tenant</span>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'edit_tenant' tenant.id %}" class="btn btn-success"><i class="bi bi-pencil me-2"></i>Edit Profile</a>
+            </div>
+        </div>
+        <hr>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <label class="text-muted small fw-bold text-uppercase">Phone Number</label>
+                <p class="fs-5">{{ tenant.phone }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small fw-bold text-uppercase">Email Address</label>
+                <p class="fs-5">{{ tenant.email }}</p>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted small fw-bold text-uppercase">Assigned Unit</label>
+                <p class="fs-5 fw-bold text-success">{{ lease.unit.unit_name }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

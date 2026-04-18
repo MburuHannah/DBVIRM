@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DBVIRM | Login Test</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding-top: 100px; }
+        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; }
+        .logo { text-align: center; font-weight: bold; font-size: 24px; color: #2c3e50; margin-bottom: 30px; }
+        /* THE FAKE DJANGO ERROR MESSAGE */
+        .django-msg-error {
+            background-color: #fdeaea;
+            color: #d93025;
+            padding: 12px;
+            border-left: 5px solid #d93025;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">DBVIRM Admin</div>
+
+        <div class="django-msg-error">
+            ✕ Invalid credentials. You have 4 attempts remaining.
+        </div>
+
+        <form>
+            <label>Username</label>
+            <input type="text" value="hannah_admin">
+            <label>Password</label>
+            <input type="password" value="********">
+            <button type="button">Login</button>
+        </form>
+    </div>
+</body>
+</html>
